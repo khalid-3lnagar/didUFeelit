@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * URL for earthquake data from the USGS dataset
      */
-    private String USGS_REQUEST_URL =
+    private static final String USGS_REQUEST_URL =
             "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2016-01-01&endtime=2016-05-02&minfelt=50&minmagnitude=5";
 
     @Override
@@ -56,19 +56,26 @@ public class MainActivity extends AppCompatActivity {
         magnitudeTextView.setText(earthquake.perceivedStrength);
     }
 
-    class task extends AsyncTask<String, Void, Event> {
+    private class task extends AsyncTask<String, Void, Event> {
+
         @Override
-        protected void onPostExecute(Event event) {
-            // Update the information displayed to the user.
-            updateUi(event);
+        protected Event doInBackground(String... urls) {
+            //return null if there are no URLs,or the first URL is null.
+            if (urls.length < 1 || urls[0] == null) {
+                return Utils.fetchEarthquakeData(urls[0]);
+            } else return null;
+
         }
 
         @Override
-        protected Event doInBackground(String... voids) {
+        protected void onPostExecute(Event result) {
+            //if  there is no result, do nothing.
+            if (result == null)
+                return;
+            //else Update the information displayed to the user.
+            updateUi(result);
 
-
-            return   // Perform the HTTP request for earthquake data and process the response.
-                    Utils.fetchEarthquakeData(USGS_REQUEST_URL);
         }
+
     }
 }
