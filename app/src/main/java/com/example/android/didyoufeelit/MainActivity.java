@@ -15,6 +15,7 @@
  */
 package com.example.android.didyoufeelit;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -25,8 +26,10 @@ import android.widget.TextView;
  */
 public class MainActivity extends AppCompatActivity {
 
-    /** URL for earthquake data from the USGS dataset */
-    private static final String USGS_REQUEST_URL =
+    /**
+     * URL for earthquake data from the USGS dataset
+     */
+    private String USGS_REQUEST_URL =
             "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2016-01-01&endtime=2016-05-02&minfelt=50&minmagnitude=5";
 
     @Override
@@ -34,11 +37,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Perform the HTTP request for earthquake data and process the response.
-        Event earthquake = Utils.fetchEarthquakeData(USGS_REQUEST_URL);
+        new task().execute(USGS_REQUEST_URL);//fetch Earthquake Data in background&& update the ui
 
-        // Update the information displayed to the user.
-        updateUi(earthquake);
+
     }
 
     /**
@@ -53,5 +54,21 @@ public class MainActivity extends AppCompatActivity {
 
         TextView magnitudeTextView = (TextView) findViewById(R.id.perceived_magnitude);
         magnitudeTextView.setText(earthquake.perceivedStrength);
+    }
+
+    class task extends AsyncTask<String, Void, Event> {
+        @Override
+        protected void onPostExecute(Event event) {
+            // Update the information displayed to the user.
+            updateUi(event);
+        }
+
+        @Override
+        protected Event doInBackground(String... voids) {
+
+
+            return   // Perform the HTTP request for earthquake data and process the response.
+                    Utils.fetchEarthquakeData(USGS_REQUEST_URL);
+        }
     }
 }
